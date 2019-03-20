@@ -48,6 +48,46 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
+#
+# Lambda logs
+#
+
+resource "aws_cloudwatch_log_group" "recidiffist_s3" {
+  name              = "/aws/lambda/${aws_lambda_function.recidiffist_s3.function_name}"
+  retention_in_days = 14
+}
+
+resource "aws_iam_policy" "lambda_logs" {
+  name = "recidiffist-s3-logs"
+  path = "/"
+  description = "IAM policy for logging from recidiffist-s3 lambda"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = "${aws_iam_role.iam_for_lambda.name}"
+  policy_arn = "${aws_iam_policy.lambda_logs.arn}"
+}
+
+#
+# S3 bucket writes -> lambda
+#
+
 resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
