@@ -1,5 +1,5 @@
-variable "s3_bucket_arn" {
-  description = "The ARN of the bucket to subscribe to"
+variable "s3_bucket_name" {
+  description = "The name of the bucket to subscribe to"
 }
 
 variable "jar_path" {

@@ -12,6 +12,8 @@ resource "aws_s3_bucket_object" "jar" {
 
 resource "aws_lambda_function" "recidiffist_s3" {
   function_name = "recidiffist-s3"
+  s3_bucket     = "${aws_s3_bucket.lambda.id}"
+  s3_key        = "${aws_s3_bucket_object.jar.id}"
   role          = "${aws_iam_role.iam_for_lambda.arn}"
   handler       = "recidiffist_s3.core"
   runtime       = "java8"
@@ -51,11 +53,11 @@ resource "aws_lambda_permission" "allow_bucket" {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.recidiffist_s3.arn}"
   principal     = "s3.amazonaws.com"
-  source_arn    = "${var.s3_bucket_arn}"
+  source_arn    = "arn:aws:s3:::${var.s3_bucket_name}"
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = "${var.s3_bucket_arn}"
+  bucket = "${var.s3_bucket_name}"
 
   lambda_function {
     lambda_function_arn = "${aws_lambda_function.recidiffist_s3.arn}"
