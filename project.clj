@@ -12,4 +12,6 @@
                  [cheshire "5.8.1"]]
   :main ^:skip-aot recidiffist-s3.core
   :target-path "target/%s"
+  :jar-name "recidiffist-s3.jar"
+  :uberjar-name "recidiffist-s3-standalone.jar"
   :profiles {:uberjar {:aot :all}})
