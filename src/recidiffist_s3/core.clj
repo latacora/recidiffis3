@@ -2,7 +2,10 @@
   (:require [cognitect.aws.client.api :as aws]
             [cheshire.core :as json]
             [clojure.java.io :as io]
-            [recidiffist.diff :as diff])
+            [recidiffist.diff :as diff]
+            [taoensso.timbre :as log]
+            [unsiemly.core :as uc]
+            [unsiemly.env :as ue])
   (:gen-class
    :implements [com.amazonaws.services.lambda.runtime.RequestStreamHandler]))
 
@@ -45,18 +48,21 @@
   "Given a Lambda S3 event, finds all object puts in the event and sends diffs off
   somewhere."
   [this in-stream out-stream context]
-  (doseq [{:keys [s3] region :awsRegion} (-> in-stream parse-json :Records)
-          :when s3
-          :let [{:keys [bucket object]} s3
-                bucket (bucket :name)
-                key (object :key)
-                etag (object :eTag)
-                s3 (aws/client {:api :s3 :region region})
-                [curr-v prev-v] (take 2 (get-version-data s3 bucket key etag))
-                [curr prev] (eduction
-                             (map (comp (partial get-specific-version s3 bucket key) :VersionId))
-                             (map (comp parse-json :Body))
-                             [curr-v prev-v])
-                delta (diff/fancy-diff prev curr)]]
-   ;; TODO: actually send data to unsiemly
-    ))
+  (uc/process!
+     (ue/opts-from-env!)
+     (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json :Records)
+           :when s3-event
+           :let [{:keys [bucket object]} (log/spy s3-event)
+                 bucket (bucket :name)
+                 {key :key etag :eTag} object
+                 s3 (aws/client {:api :s3 :region region})
+                 [curr-v prev-v] (log/info (take 2 (get-version-data s3 bucket key etag)))
+                 [curr prev] (eduction
+                              (map (comp (partial get-specific-version s3 bucket key) :VersionId))
+                              (map (comp parse-json :Body))
+                              [curr-v prev-v])
+                 version-details #(select-keys % ["LastModified" "VersionId" "ETag"])]]
+       (array-map ;; preserve order
+        :prev (version-details prev-v)
+        :curr (version-details curr-v)
+        :diff (diff/fancy-diff prev curr)))))

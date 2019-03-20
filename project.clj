@@ -9,7 +9,9 @@
                  [com.cognitect.aws/api "0.8.273"]
                  [com.cognitect.aws/endpoints "1.1.11.507"]
                  [com.cognitect.aws/s3 "697.2.391.0"]
-                 [cheshire "5.8.1"]]
+                 [cheshire "5.8.1"]
+                 [com.latacora/unsiemly "0.10.0"]
+                 [com.taoensso/timbre "4.10.0"]]
   :main ^:skip-aot recidiffist-s3.core
   :target-path "target/%s"
   :jar-name "recidiffist-s3.jar"
