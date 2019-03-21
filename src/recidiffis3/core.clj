@@ -33,12 +33,13 @@
        (aws/invoke
         {:op :ListObjectVersions
          :request {:Bucket bucket :Prefix key}})
+       log/spy
        :Versions)))
 
 (defn ^:private get-specific-version
   "Get a specific version of an object from an S3 bucket."
   [s3 bucket key version-id]
-  (aws/invoke s3 {:op :GetObject :request {:Bucket bucket :Key key :VersionId version-id}}))
+  (log/spy (aws/invoke s3 {:op :GetObject :request {:Bucket bucket :Key key :VersionId version-id}})))
 
 (defn ^:private parse-json
   "Convert the given object to a java.io.PushbackReader and parse as JSON."
@@ -62,7 +63,9 @@
                                                  (into [])
                                                  (log/spy))
                             [curr prev] (eduction
-                                         (map (comp (partial get-specific-version s3 bucket key) :VersionId))
+                                         (map (comp (fn [specific-version] (log/spy specific-version))
+                                                 (partial get-specific-version s3 bucket key)
+                                                 :VersionId))
                                          (map (comp parse-json :Body))
                                          [curr-v prev-v])
                             version-details #(select-keys % ["LastModified" "VersionId" "ETag"])]]
