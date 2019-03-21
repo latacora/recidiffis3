@@ -12,7 +12,7 @@
                  [cheshire "5.8.1"]
                  [com.latacora/unsiemly "0.10.0"]
                  [com.taoensso/timbre "4.10.0"]]
-  :main ^:skip-aot recidiffist-s3.core
+  :main recidiffist-s3.core
   :target-path "target/%s"
   :jar-name "recidiffist-s3.jar"
   :uberjar-name "recidiffist-s3-standalone.jar"
