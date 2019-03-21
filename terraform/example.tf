@@ -79,7 +79,6 @@ resource "aws_iam_role_policy_attachment" "recidiffist_sns" {
   policy_arn = "${aws_iam_policy.s3_read.arn}"
 }
 
-
 #
 # Publish to SNS
 #
