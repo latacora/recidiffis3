@@ -48,21 +48,21 @@
   "Given a Lambda S3 event, finds all object puts in the event and sends diffs off
   somewhere."
   [this in-stream out-stream context]
-  (uc/process!
-     (ue/opts-from-env!)
-     (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json :Records)
-           :when s3-event
-           :let [{:keys [bucket object]} (log/spy s3-event)
-                 bucket (bucket :name)
-                 {key :key etag :eTag} object
-                 s3 (aws/client {:api :s3 :region region})
-                 [curr-v prev-v] (log/info (take 2 (get-version-data s3 bucket key etag)))
-                 [curr prev] (eduction
-                              (map (comp (partial get-specific-version s3 bucket key) :VersionId))
-                              (map (comp parse-json :Body))
-                              [curr-v prev-v])
-                 version-details #(select-keys % ["LastModified" "VersionId" "ETag"])]]
-       (array-map ;; preserve order
-        :prev (version-details prev-v)
-        :curr (version-details curr-v)
-        :diff (diff/fancy-diff prev curr)))))
+  @(uc/process!
+    (ue/opts-from-env!)
+    (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json :Records)
+          :when s3-event
+          :let [{:keys [bucket object]} (log/spy s3-event)
+                bucket (bucket :name)
+                {key :key etag :eTag} object
+                s3 (aws/client {:api :s3 :region region})
+                [curr-v prev-v] (log/info (take 2 (get-version-data s3 bucket key etag)))
+                [curr prev] (eduction
+                             (map (comp (partial get-specific-version s3 bucket key) :VersionId))
+                             (map (comp parse-json :Body))
+                             [curr-v prev-v])
+                version-details #(select-keys % ["LastModified" "VersionId" "ETag"])]]
+      (array-map ;; preserve order
+       :prev (version-details prev-v)
+       :curr (version-details curr-v)
+       :diff (diff/fancy-diff prev curr)))))
