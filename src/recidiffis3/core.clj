@@ -57,7 +57,10 @@
                             bucket (bucket :name)
                             {key :key etag :eTag} object
                             s3 (aws/client {:api :s3 :region region})
-                            [curr-v prev-v] (log/info (take 2 (get-version-data s3 bucket key etag)))
+                            [curr-v prev-v] (->> (get-version-data s3 bucket key etag)
+                                                 (take 2)
+                                                 (into [])
+                                                 (log/spy))
                             [curr prev] (eduction
                                          (map (comp (partial get-specific-version s3 bucket key) :VersionId))
                                          (map (comp parse-json :Body))
