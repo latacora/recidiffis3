@@ -1,4 +1,3 @@
-resource "aws_sns_topic" "recidiffist_s3" {
-  name = "recidiffist_s3"
+resource "aws_sns_topic" "recidiffis3" {
+  name = "recidiffis3"
 }
-

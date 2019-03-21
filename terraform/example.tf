@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "lambda" {
-  bucket = "recidiffist-s3-lambda-storage"
+  bucket = "recidiffis3-lambda-storage"
   acl    = "private"
 }
 
@@ -10,12 +10,12 @@ resource "aws_s3_bucket_object" "jar" {
   etag   = "${md5(file(var.jar_path))}"
 }
 
-resource "aws_lambda_function" "recidiffist_s3" {
-  function_name = "recidiffist-s3"
+resource "aws_lambda_function" "recidiffis3" {
+  function_name = "recidiffis3"
   s3_bucket     = "${aws_s3_bucket.lambda.id}"
   s3_key        = "${aws_s3_bucket_object.jar.id}"
   role          = "${aws_iam_role.lambda.arn}"
-  handler       = "recidiffist_s3.core"
+  handler       = "recidiffis3.core"
   runtime       = "java8"
   memory_size   = 512
   timeout       = 10
@@ -23,7 +23,7 @@ resource "aws_lambda_function" "recidiffist_s3" {
   environment = {
     variables = {
       SIEM_TYPE     = "sns"
-      LOG_NAME      = "recidiffist-s3"
+      LOG_NAME      = "recidiffis3"
       SNS_TOPIC_ARN = "${var.sns_topic_arn}"
     }
   }
@@ -53,9 +53,9 @@ EOF
 #
 
 resource "aws_iam_policy" "s3_read" {
-  name = "recidiffist-s3-read"
+  name = "recidiffis3-read"
   path = "/"
-  description = "IAM policy for allowing recidiffist-s3 to read from s3"
+  description = "IAM policy for allowing recidiffis3 to read from s3"
 
   policy = <<EOF
 {
@@ -84,9 +84,9 @@ resource "aws_iam_role_policy_attachment" "recidiffist_sns" {
 #
 
 resource "aws_iam_policy" "sns_publish" {
-  name = "recidiffist-s3-sns-publish"
+  name = "recidiffis3-sns-publish"
   path = "/"
-  description = "IAM policy for allowing recidiffist-s3 to read from s3"
+  description = "IAM policy for allowing recidiffis3 to read from s3"
 
   policy = <<EOF
 {
@@ -113,15 +113,15 @@ resource "aws_iam_role_policy_attachment" "sns_publish" {
 # Lambda logs
 #
 
-resource "aws_cloudwatch_log_group" "recidiffist_s3" {
-  name              = "/aws/lambda/${aws_lambda_function.recidiffist_s3.function_name}"
+resource "aws_cloudwatch_log_group" "recidiffis3" {
+  name              = "/aws/lambda/${aws_lambda_function.recidiffis3.function_name}"
   retention_in_days = 14
 }
 
 resource "aws_iam_policy" "lambda_logs" {
-  name = "recidiffist-s3-logs"
+  name = "recidiffis3-logs"
   path = "/"
-  description = "IAM policy for logging from recidiffist-s3 lambda"
+  description = "IAM policy for logging from recidiffis3 lambda"
 
   policy = <<EOF
 {
@@ -152,7 +152,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.recidiffist_s3.arn}"
+  function_name = "${aws_lambda_function.recidiffis3.arn}"
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::${var.s3_bucket_name}"
 }
@@ -161,7 +161,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = "${var.s3_bucket_name}"
 
   lambda_function {
-    lambda_function_arn = "${aws_lambda_function.recidiffist_s3.arn}"
+    lambda_function_arn = "${aws_lambda_function.recidiffis3.arn}"
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = "${var.key_filter_prefix}"
     filter_suffix       = "${var.key_filter_suffix}"

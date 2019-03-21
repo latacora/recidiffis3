@@ -1,4 +1,4 @@
-# recidiffist-s3
+# recidiffis3
 
 A Lambda function that sends structured diffs of versioned files in S3 to
 wherever you want them.

@@ -3,7 +3,7 @@ variable "s3_bucket_name" {
 }
 
 variable "jar_path" {
-  description = "The local filesystem path to the recidiffist-s3 standalone jar. This jar will be uploaded to S3."
+  description = "The local filesystem path to the recidiffis3 standalone jar. This jar will be uploaded to S3."
 }
 
 variable "key_filter_prefix" {
@@ -15,5 +15,5 @@ variable "key_filter_suffix" {
 }
 
 variable "sns_topic_arn" {
-  description = "The SNS topic ARN to subscribe to."
+  description = "The SNS topic ARN to publish to."
 }

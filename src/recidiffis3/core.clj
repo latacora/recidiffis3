@@ -1,4 +1,4 @@
-(ns recidiffist-s3.core
+(ns recidiffis3.core
   (:require [cognitect.aws.client.api :as aws]
             [cheshire.core :as json]
             [clojure.java.io :as io]
@@ -49,7 +49,8 @@
   "Given a Lambda S3 event, finds all object puts in the event and sends diffs off
   somewhere."
   [this in-stream out-stream context]
-  (log/info "recidiffist-s3 handleRequest starting...")
+  (-> context .getLogger (.log "log statement via lambda context logger"))
+  (log/info "recidiffis3 handleRequest starting...")
   (let [results (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json log/spy :Records)
                       :when s3-event
                       :let [{:keys [bucket object]} (log/spy s3-event)

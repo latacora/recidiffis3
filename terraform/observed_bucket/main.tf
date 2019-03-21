@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "obs" {
-  bucket = "recidiffist-s3-observed"
+  bucket = "recidiffis3-observed"
   acl    = "private"
 }
 

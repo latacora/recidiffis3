@@ -1,6 +1,6 @@
-(ns recidiffist-s3.core-test
+(ns recidiffis3.core-test
   (:require [clojure.test :refer :all]
-            [recidiffist-s3.core :refer :all]))
+            [recidiffis3.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
