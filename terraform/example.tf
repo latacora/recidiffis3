@@ -14,7 +14,7 @@ resource "aws_lambda_function" "recidiffist_s3" {
   function_name = "recidiffist-s3"
   s3_bucket     = "${aws_s3_bucket.lambda.id}"
   s3_key        = "${aws_s3_bucket_object.jar.id}"
-  role          = "${aws_iam_role.iam_for_lambda.arn}"
+  role          = "${aws_iam_role.lambda.arn}"
   handler       = "recidiffist_s3.core"
   runtime       = "java8"
   memory_size   = 512
@@ -29,8 +29,8 @@ resource "aws_lambda_function" "recidiffist_s3" {
   }
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
+resource "aws_iam_role" "lambda" {
+  name = "lambda"
 
   assume_role_policy = <<EOF
 {
@@ -46,6 +46,68 @@ resource "aws_iam_role" "iam_for_lambda" {
   ]
 }
 EOF
+}
+
+#
+# Read from S3
+#
+
+resource "aws_iam_policy" "s3_read" {
+  name = "recidiffist-s3-read"
+  path = "/"
+  description = "IAM policy for allowing recidiffist-s3 to read from s3"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+          "s3:GetObjectVersion",
+          "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::${var.s3_bucket_name}",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "recidiffist_sns" {
+  role       = "${aws_iam_role.lambda.name}"
+  policy_arn = "${aws_iam_policy.s3_read.arn}"
+}
+
+
+#
+# Publish to SNS
+#
+
+resource "aws_iam_policy" "sns_publish" {
+  name = "recidiffist-s3-sns-publish"
+  path = "/"
+  description = "IAM policy for allowing recidiffist-s3 to read from s3"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+          "sns:Publish"
+      ],
+      "Resource": "${var.sns_topic_arn}",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "sns_publish" {
+  role       = "${aws_iam_role.lambda.name}"
+  policy_arn = "${aws_iam_policy.sns_publish.arn}"
 }
 
 #
@@ -80,7 +142,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = "${aws_iam_role.iam_for_lambda.name}"
+  role       = "${aws_iam_role.lambda.name}"
   policy_arn = "${aws_iam_policy.lambda_logs.arn}"
 }
 
