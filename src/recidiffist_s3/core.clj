@@ -48,9 +48,10 @@
   "Given a Lambda S3 event, finds all object puts in the event and sends diffs off
   somewhere."
   [this in-stream out-stream context]
+  (log/info "recidiffist-s3 handleRequest starting...")
   @(uc/process!
     (ue/opts-from-env!)
-    (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json :Records)
+    (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json log/spy :Records)
           :when s3-event
           :let [{:keys [bucket object]} (log/spy s3-event)
                 bucket (bucket :name)
