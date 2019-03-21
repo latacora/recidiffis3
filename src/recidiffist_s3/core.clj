@@ -5,6 +5,7 @@
             [recidiffist.diff :as diff]
             [taoensso.timbre :as log]
             [unsiemly.core :as uc]
+            [unsiemly.internal :as ui]
             [unsiemly.env :as ue])
   (:gen-class
    :implements [com.amazonaws.services.lambda.runtime.RequestStreamHandler]))
@@ -66,7 +67,7 @@
                    :curr (version-details curr-v)
                    :diff (diff/fancy-diff prev curr)))
         writer (io/writer out-stream)]
-    @(uc/process! (ue/opts-from-env!) results)
+    ((ui/entries-callback (ue/opts-from-env!)) results)
     (json/generate-stream {"results" results} writer)
     (.flush writer)
     (flush)))
