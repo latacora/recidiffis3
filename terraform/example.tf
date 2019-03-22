@@ -73,7 +73,7 @@ resource "aws_iam_policy" "s3_read" {
       "Resource": [
           "arn:aws:s3:::${var.s3_bucket_name}/*",
           "arn:aws:s3:::${var.s3_bucket_name}"
-      ]
+      ],
       "Effect": "Allow"
     }
   ]
