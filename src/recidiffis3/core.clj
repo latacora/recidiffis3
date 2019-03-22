@@ -61,8 +61,7 @@
                                                  (into [])
                                                  (log/spy))
                             [curr prev] (eduction
-                                         (map (comp (fn [specific-version] (log/spy specific-version))
-                                                 (partial get-specific-version s3 bucket key)
+                                         (map (comp (partial get-specific-version s3 bucket key)
                                                  :VersionId))
                                          (map (comp parse-json :Body))
                                          [curr-v prev-v])
