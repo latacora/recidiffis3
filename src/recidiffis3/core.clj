@@ -52,9 +52,9 @@
   [this in-stream out-stream context]
   (-> context .getLogger (.log "log statement via lambda context logger"))
   (log/info "recidiffis3 handleRequest starting...")
-  (let [results (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json log/spy :Records)
+  (let [results (for [{s3-event :s3 region :awsRegion} (-> in-stream parse-json :Records)
                       :when s3-event
-                      :let [{:keys [bucket object]} (log/spy s3-event)
+                      :let [{:keys [bucket object]} s3-event
                             bucket (bucket :name)
                             {key :key etag :eTag} object
                             s3 (aws/client {:api :s3 :region region})
