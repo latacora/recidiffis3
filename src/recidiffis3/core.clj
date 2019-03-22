@@ -65,7 +65,7 @@
                                                  :VersionId))
                                          (map (comp parse-json :Body))
                                          [curr-v prev-v])
-                            version-details #(select-keys % ["LastModified" "VersionId" "ETag"])]]
+                            version-details #(select-keys % [:LastModified :VersionId :ETag])]]
                   (array-map ;; preserve order
                    :prev (version-details prev-v)
                    :curr (version-details curr-v)
