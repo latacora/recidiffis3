@@ -66,9 +66,7 @@ resource "aws_iam_policy" "s3_read" {
   "Statement": [
     {
       "Action": [
-          "s3:ListBucketVersions",
-          "s3:GetObjectVersion",
-          "s3:GetObject"
+          "s3:*"
       ],
       "Resource": "arn:aws:s3:::${var.s3_bucket_name}/*",
       "Effect": "Allow"
