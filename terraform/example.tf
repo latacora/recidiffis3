@@ -18,7 +18,7 @@ resource "aws_lambda_function" "recidiffis3" {
   handler       = "recidiffis3.core"
   runtime       = "java8"
   memory_size   = 512
-  timeout       = 10
+  timeout       = 300
 
   environment = {
     variables = {
