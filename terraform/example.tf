@@ -52,6 +52,9 @@ EOF
 # Read from S3
 #
 
+# TODO: since we know the watched prefix and suffix, can we improve on the /*
+# resource?
+
 resource "aws_iam_policy" "s3_read" {
   name = "recidiffis3-read"
   path = "/"
