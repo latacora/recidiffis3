@@ -54,12 +54,11 @@
                       :when s3-event
                       :let [{:keys [bucket object]} s3-event
                             bucket (bucket :name)
-                            {key :key etag :eTag} object
+                            {key :key new-etag :eTag} object
                             s3 (aws/client {:api :s3 :region region})
-                            [curr-v prev-v] (->> (get-version-data s3 bucket key etag)
+                            [curr-v prev-v] (->> (get-version-data s3 (log/spy bucket) (log/spy key) (log/spy new-etag))
                                                  (take 2)
-                                                 (into [])
-                                                 (log/spy))
+                                                 (into []))
                             [curr prev] (eduction
                                          (map (comp (partial get-specific-version s3 bucket key)
                                                  :VersionId))
