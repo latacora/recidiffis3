@@ -10,7 +10,7 @@
                  [com.cognitect.aws/endpoints "1.1.11.507"]
                  [com.cognitect.aws/s3 "697.2.391.0"]
                  [cheshire "5.8.1"]
-                 [com.latacora/unsiemly "0.10.0"]
+                 [com.latacora/unsiemly "0.11.0"]
                  [com.taoensso/timbre "4.10.0"]]
   :main recidiffis3.core
   :target-path "target/%s"
