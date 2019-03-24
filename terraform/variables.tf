@@ -14,6 +14,6 @@ variable "key_filter_suffix" {
   description = "The key filter suffix for events to subscribe to; see https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#notification-how-to-filtering"
 }
 
-variable "sns_topic_arn" {
-  description = "The SNS topic ARN to publish to."
+variable "sns_target_arn" {
+  description = "The SNS target ARN to publish to."
 }

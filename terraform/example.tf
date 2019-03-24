@@ -24,7 +24,7 @@ resource "aws_lambda_function" "recidiffis3" {
     variables = {
       SIEM_TYPE     = "sns"
       LOG_NAME      = "recidiffis3"
-      SNS_TOPIC_ARN = "${var.sns_topic_arn}"
+      SNS_TARGET_ARN = "${var.sns_target_arn}"
     }
   }
 }
@@ -103,7 +103,7 @@ resource "aws_iam_policy" "sns_publish" {
       "Action": [
           "sns:Publish"
       ],
-      "Resource": "${var.sns_topic_arn}",
+      "Resource": "${var.sns_target_arn}",
       "Effect": "Allow"
     }
   ]
