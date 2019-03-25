@@ -66,6 +66,8 @@
                                          [curr-v prev-v])
                             version-details #(select-keys % [:LastModified :VersionId :ETag])]]
                   (array-map ;; preserve order
+                   :bucket bucket
+                   :key key
                    :prev (version-details prev-v)
                    :curr (version-details curr-v)
                    :diff (diff/fancy-diff prev curr)))
