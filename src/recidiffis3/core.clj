@@ -39,7 +39,7 @@
 (defn ^:private get-specific-version
   "Get a specific version of an object from an S3 bucket."
   [s3 bucket key version-id]
-  (log/spy (aws/invoke s3 {:op :GetObject :request {:Bucket bucket :Key key :VersionId version-id}})))
+  (aws/invoke s3 {:op :GetObject :request {:Bucket bucket :Key key :VersionId version-id}}))
 
 (defn ^:private parse-json
   "Convert the given object to a java.io.PushbackReader and parse as JSON."
@@ -56,23 +56,21 @@
                             bucket (bucket :name)
                             {key :key new-etag :eTag} object
                             s3 (aws/client {:api :s3 :region region})
-                            [curr-v prev-v] (->> (get-version-data s3 (log/spy bucket) (log/spy key) (log/spy new-etag))
-                                                 (take 2)
-                                                 (into []))
+                            [curr-v prev-v] (->> (get-version-data s3 bucket key new-etag)
+                                                 (take 2))
                             [curr prev] (eduction
                                          (map (comp (partial get-specific-version s3 bucket key)
                                                  :VersionId))
                                          (map (comp parse-json :Body))
-                                         [curr-v prev-v])
+                                         (log/spy [curr-v prev-v]))
                             version-details #(select-keys % [:LastModified :VersionId :ETag])]]
-                  (array-map ;; preserve order
-                   :bucket bucket
-                   :key key
-                   :prev (version-details prev-v)
-                   :curr (version-details curr-v)
-                   :diff (diff/fancy-diff prev curr)))
-        writer (io/writer out-stream)]
-    ((ui/entries-callback (ue/opts-from-env!)) results)
-    (json/generate-stream {"results" results} writer)
-    (.flush writer)
+                  (log/spy
+                   (array-map ;; preserve order
+                    :bucket bucket
+                    :key key
+                    :prev (version-details prev-v)
+                    :curr (version-details curr-v)
+                    :diff (diff/fancy-diff prev curr))))]
+    (log/info "writing to unsiemly")
+    ((ui/entries-callback (log/spy (ue/opts-from-env!))) results)
     (flush)))
