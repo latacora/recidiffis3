@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "lambda" {
 
 resource "aws_s3_bucket_object" "jar" {
   bucket = "${aws_s3_bucket.lambda.id}"
-  key    = "recidiffist.jar"
+  key    = "recidiffis3.jar"
   source = "${var.jar_path}"
   etag   = "${md5(file(var.jar_path))}"
 }
